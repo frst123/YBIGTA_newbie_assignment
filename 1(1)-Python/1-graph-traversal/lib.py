@@ -1,0 +1,115 @@
+from __future__ import annotations
+import copy
+from collections import deque
+from collections import defaultdict
+from typing import DefaultDict, List
+
+
+"""
+TODO:
+- __init__ 구현하기
+- add_edge 구현하기
+- dfs 구현하기 (재귀 또는 스택 방식 선택)
+- bfs 구현하기
+"""
+
+
+class Graph:
+    def __init__(self, n: int) -> None:
+        """
+        그래프 초기화
+        n: 정점의 개수 (1번부터 n번까지)
+        self.adj 리스트에 간선 정보 저장
+
+        Args:
+           - n (int): 정점의 개수 (1번부터 n번까지 존재)
+        """
+        self.n = n
+        self.adj: DefaultDict[int, List[int]] = defaultdict(list)
+
+    
+    def add_edge(self, u: int, v: int) -> None:
+        """
+        양방향 간선 추가, 오름차순 정렬
+
+        Args:
+           - u (int): 연결할 첫 번째 정점 번호
+           - v (int): 연결할 두 번째 정점 번호
+        """
+        self.adj[u].append(v)
+        self.adj[v].append(u)
+
+        #정렬 
+        self.adj[u].sort()
+        self.adj[v].sort()
+
+        
+    
+    def dfs(self, start: int) -> list[int]:
+        """
+        깊이 우선 탐색 (DFS)
+        
+        구현 방법 선택:
+        1. 재귀 방식: 함수 내부에서 재귀 함수 정의하여 구현
+        2. 스택 방식: 명시적 스택을 사용하여 반복문으로 구현
+
+        Args:
+           - start (int): 탐색을 시작할 정점 번호
+
+        Returns:
+          -  list[int]: DFS로 탐색한 정점들의 번호가 순서대로 담긴 리스트
+        """
+        #1. 재귀 방식
+        visited = [False] * (self.n + 1)
+        result: list[int] = []
+
+        def s_dfs(now: int) -> None:
+            visited[now] = True
+            result.append(now)
+
+            for neighbor in self.adj[now]:
+                if not visited[neighbor]:
+                    s_dfs(neighbor)
+        s_dfs(start)
+        return result 
+        
+    
+    def bfs(self, start: int) -> list[int]:
+        """
+        너비 우선 탐색 (BFS)
+        큐를 사용하여 구현
+
+        시작점과 가까운 이웃 정점부터 차례대로 BFS
+
+        Args:
+          -  start (int): 탐색을 시작할 정점 번호
+
+        Returns:
+           - list[int]: BFS로 탐색한 정점들의 번호가 순서대로 담긴 리스트
+        """
+        visited = [False] * (self.n + 1)
+        result: list[int] = []
+
+        queue = deque([start])
+        visited[start] = True
+
+        while queue:
+            now = queue.popleft()
+            result.append(now)
+
+            for neighbor in self.adj[now]:
+                if not visited[neighbor]:
+                    queue.append(neighbor)
+                    visited[neighbor] = True
+        return result   
+        
+    
+    def search_and_print(self, start: int) -> None:
+        """
+        DFS와 BFS 결과를 출력
+        """
+        dfs_result = self.dfs(start)
+        bfs_result = self.bfs(start)
+        
+        print(' '.join(map(str, dfs_result)))
+        print(' '.join(map(str, bfs_result)))
